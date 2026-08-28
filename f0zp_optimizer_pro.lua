@@ -1,5 +1,5 @@
 -- =========================================================
--- 🔥 ROBLOX OPTIMIZER PRO ULTIMATE – f0zp EDITION
+-- 🔥 ROBLOX OPTIMIZER PRO ULTIMATE – f0zp EDITION (FIXED)
 -- 5 tab ngang, 12+ tính năng tối ưu mạnh mẽ
 -- Nhấn F10 để mở/tắt menu
 -- =========================================================
@@ -150,8 +150,9 @@ local function CreateTabButton(name, tabIndex, icon)
     end
 end
 
--- ========== TẠO TOGGLE DẠNG SLIDER ==========
+-- ========== HÀM TẠO TOGGLE (ĐÃ SỬA LỖI) ==========
 local function CreateToggle(parent, name, key, color)
+    -- Tạo Frame cha
     local Frame = Instance.new("Frame")
     Frame.Size = UDim2.new(0.92, 0, 0, 38)
     Frame.BackgroundColor3 = Color3.fromRGB(18, 18, 30)
@@ -179,6 +180,7 @@ local function CreateToggle(parent, name, key, color)
     Track.BorderSizePixel = 0
     Track.Parent = Frame
 
+    -- Nút tròn
     local Thumb = Instance.new("Frame")
     Thumb.Size = UDim2.new(0, 22, 0, 22)
     Thumb.Position = UDim2.new(0, 3, 0, 3)
@@ -190,14 +192,26 @@ local function CreateToggle(parent, name, key, color)
     toggles[key] = state
     local toggleColor = color or Color3.fromRGB(0, 200, 255)
 
+    -- Hàm cập nhật toggle (ĐÃ SỬA)
     local function UpdateToggle(animate)
+        -- Kiểm tra đối tượng tồn tại trước khi dùng
+        if not Track or not Thumb then
+            return
+        end
+
         local targetPos = state and 25 or 3
         local targetColor = state and toggleColor or Color3.fromRGB(40, 40, 60)
         local thumbColor = state and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 180, 200)
 
-        if animate then
-            TweenService:Create(Track, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = targetColor}):Play()
-            TweenService:Create(Thumb, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, targetPos, 0, 3), BackgroundColor3 = thumbColor}):Play()
+        if animate and TweenService then
+            local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+            local trackTween = TweenService:Create(Track, tweenInfo, {BackgroundColor3 = targetColor})
+            local thumbTween = TweenService:Create(Thumb, tweenInfo, {
+                Position = UDim2.new(0, targetPos, 0, 3),
+                BackgroundColor3 = thumbColor
+            })
+            trackTween:Play()
+            thumbTween:Play()
         else
             Track.BackgroundColor3 = targetColor
             Thumb.Position = UDim2.new(0, targetPos, 0, 3)
@@ -206,12 +220,14 @@ local function CreateToggle(parent, name, key, color)
         ApplyOptimizations()
     end
 
+    -- Hàm bật/tắt
     local function Toggle()
         state = not state
         toggles[key] = state
         UpdateToggle(true)
     end
 
+    -- Sự kiện click
     Track.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             Toggle()
